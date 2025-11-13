@@ -14,7 +14,7 @@ import sys
 
 
 # === EDIT THIS LINE ===
-RTSP_URL = "rtsp://admin:pvs12385@192.168.1.168:554/Streaming/Channels/1701"
+RTSP_URL = "rtsp://admin:password@XXX.XXX.XXX.XXX:554/chID=01&streamType=sub"
 # ======================
 
 # Optional config

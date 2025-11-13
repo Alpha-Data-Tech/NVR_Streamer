@@ -25,13 +25,13 @@ import cv2
 import numpy as np
 
 # ----------------- CONFIGURE THESE -----------------
-NVR_IP = "99.99.32.203"
-NVR_PORT = 5541    
-NVR_USER = "admin"
-NVR_PASS = "Liquorhub$2022"
+NVR_IP = "XXX.XXX.XXX.XXX"
+NVR_PORT = 554    
+NVR_USER = ""         #NVR Username
+NVR_PASS = ""         #NVR Password
 
-CHANNEL_COUNT = 20    # number of channels to show
-GRID_COLS = 4         # e.g., 4 columns x 3 rows = 12
+CHANNEL_COUNT = 25    # number of channels to show
+GRID_COLS = 5         # e.g., 4 columns x 3 rows = 12
 GRID_ROWS = 5
 
 # Overall mosaic resolution (width x height of the window)
@@ -39,16 +39,19 @@ CANVAS_W = 1600
 CANVAS_H = 900
 
 # Target FPS for the mosaic (reduce if your laptop struggles)
-TARGET_FPS = 5
+TARGET_FPS = 2
 
 # Try both non-padded (1) and zero-padded (01) channel numbers with these templates
 TRY_TEMPLATES = [
     # --- Hikvision (CCSS where CC=channel 01.., SS=01 main / 02 sub) ---
-    "rtsp://{user}:{pwd}@{ip}:{port}/Streaming/Channels/{hik_cc}01",
+    # "rtsp://{user}:{pwd}@{ip}:{port}/Streaming/Channels/{hik_cc}01",
     "rtsp://{user}:{pwd}@{ip}:{port}/Streaming/Channels/{hik_cc}02",
+    "rtsp://{user}:{pwd}@{ip}:{port}/h.264/{hik_cc}/main/av_stream",
+    "rtsp://{user}:{pwd}@{ip}:{port}/h.264/{hik_cc}/sub/av_stream",
+
 
     # --- Dahua / Amcrest ---
-    # "rtsp://{user}:{pwd}@{ip}:{port}/cam/realmonitor?channel={ch}&subtype=0",
+    "rtsp://{user}:{pwd}@{ip}:{port}/cam/realmonitor?channel={ch}&subtype=0",
     "rtsp://{user}:{pwd}@{ip}:{port}/cam/realmonitor?channel={ch}&subtype=1",
 
     # --- Web Client ---
@@ -61,22 +64,82 @@ TRY_TEMPLATES = [
     "rtsp://{user}:{pwd}@{ip}:{port}/Preview_{ch}_main",
     "rtsp://{user}:{pwd}@{ip}:{port}/Preview_{ch}_sub",
 
+    # --- ACTi ---
+    "rtsp://{user}:{pwd}@{ip}:{port}/track{ch}",
+    "rtsp://{user}:{pwd}@{ip}:{port}/track1",
+    "rtsp://{user}:{pwd}@{ip}:{port}/track2",
+
+    # --- Arecont ---
+    "rtsp://{user}:{pwd}@{ip}:{port}/h264.sdp{ch}res=full&x0=0&y0=0&x1=1920&y1=1080&qp=20&doublescan=0&ssn=10&fps=4",
+    "rtsp://{user}:{pwd}@{ip}:{port}/h264.sdp{ch}res=full&x0=0&y0=0&x1=1920&y1=1080&qp=20&doublescan=0&ssn=30",
+    "rtsp://{user}:{pwd}@{ip}:{port}/h264.sdp{ch}?res=full&qp=20&doublescan=0&ssn=10&fps=0",
+
+
+    # --- Avigilon ---
+    "rtsp://{user}:{pwd}@{ip}:{port}/defaultPrimary-{ch}?streamType=u",
+    "rtsp://{user}:{pwd}@{ip}:{port}/defaultSecondary-{ch}?streamType=u",
+    "rtsp://{user}:{pwd}@{ip}:{port}/defaultPrimary-1?streamType=u",
+    "rtsp://{user}:{pwd}@{ip}:{port}/defaultSecondary-1?streamType=u",
+    "rtsp://{user}:{pwd}@{ip}:{port}/defaultPrimary-2?streamType=u",
+    "rtsp://{user}:{pwd}@{ip}:{port}/defaultSecondary-2?streamType=u",
+    "rtsp://{user}:{pwd}@{ip}:{port}/defaultPrimary-1?mtu=1440&streamType=u",
+    "rtsp://{user}:{pwd}@{ip}:{port}/defaultSecondary-1?mtu=1440&streamType=u",
+
+    # --- Axis ---
+    "rtsp://{user}:{pwd}@{ip}:{port}/axis-media/media.amp?videocodec=h264",
+    "rtsp://{user}:{pwd}@{ip}:{port}/axis-media/media.amp?videocodec=h264&resolution=640x480",
+    "rtsp://{user}:{pwd}@{ip}:{port}/axis-media/media.amp?videocodec=h264",
+    "rtsp://{user}:{pwd}@{ip}:{port}/axis-media/media.amp?videocodec=h264",
+    "rtsp://{user}:{pwd}@{ip}:{port}/axis-media/media.amp?videocodec=h264&camera=1",
+
+    # --- Digital Watchdog ---
+    "rtsp://{user}:{pwd}@{ip}:{port}/{ch}/stream1",
+    "rtsp://{user}:{pwd}@{ip}:{port}/{ch}/stream2",
+
+    # --- FLIR ---
+    "rtsp://{user}:{pwd}@{ip}:{port}/avc",
+    "rtsp://{user}:{pwd}@{ip}:{port}/avc/ch{ch}&?cbr=0&quant=80&frate=30&gop=1",
+
+    # --- GeoVision ---
+    "rtsp://{user}:{pwd}@{ip}:{port}/CH0{ch}.sdp",
+
+    # --- Hanwa ---
+    "rtsp://{user}:{pwd}@{ip}:{port}/profile1/media.smp",
+    "rtsp://{user}:{pwd}@{ip}:{port}/profile2/media.smp",
+    "rtsp://{user}:{pwd}@{ip}:{port}/0/profile2/media.smp",
+    "rtsp://{user}:{pwd}@{ip}:{port}/1/profile2/media.smp",
+    "rtsp://{user}:{pwd}@{ip}:{port}/{ch}/profile2/media.smp",
+
+    # --- IQinVision ---
+    "rtsp://{user}:{pwd}@{ip}:{port}/rtsp/now.mp4",
+
+    # --- OpenEye ---
+    "rtsp://{user}:{pwd}@{ip}:{port}/media/video{ch}",
+
+    # --- Panasonic ---
+    "rtsp://{user}:{pwd}@{ip}:{port}/MediaInput/h264/stream_1/ch_{ch}",
+    "rtsp://{user}:{pwd}@{ip}:{port}/MediaInput/h264/stream_0/ch_{ch}",
+
+    # --- Vivotek, Verint ---
+    "rtsp://{user}:{pwd}@{ip}:{port}/live{ch}s1",
+    "rtsp://{user}:{pwd}@{ip}:{port}/live{ch}s2",
+    "rtsp://{user}:{pwd}@{ip}:{port}/live{ch}.sdps",
+
     # --- Other common patterns ---
     "rtsp://{user}:{pwd}@{ip}:{port}/h264/ch{ch}/main/av_stream",
     "rtsp://{user}:{pwd}@{ip}:{port}/ch{ch}/0",
     "rtsp://{user}:{pwd}@{ip}:{port}/live/ch{ch}",
     "rtsp://{user}:{pwd}@{ip}:{port}/media/video{ch}",
+    "rtsp://{user}:{pwd}@{ip}:{port}/chID={ch}&streamType=sub",
+    "rtsp://{user}:{pwd}@{ip}:{port}/chID={ch}&streamType=main",
 
-    # --- Night Owl Protect (some models use different ports; keep for completeness) ---
-    "rtsp://{user}:{pwd}@{ip}:10080/ch{ch}_1.264",
-    "rtsp://admin:@{ip}:10080/ch{ch}_1.264",
 ]
 
 # Probe parameters
 PROBE_SECONDS = 4
 OPEN_TIMEOUT_SECONDS = 6
 READ_TIMEOUT_SECONDS = 4
-EARLY_STOP_CONSECUTIVE_FAILS = 3  # stop discovery after N consecutive no-signal channels (if we found at least one working)
+EARLY_STOP_CONSECUTIVE_FAILS = 2  # stop discovery after N consecutive no-signal channels (if we found at least one working)
 
 # After the first channel connects, reuse that exact URL pattern for the rest.
 LOCK_TEMPLATE_AFTER_FIRST_MATCH = True   # if True, prefer the first successful template for all channels
